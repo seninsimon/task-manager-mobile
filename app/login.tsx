@@ -1,15 +1,24 @@
 import { useState } from "react";
 import { Alert, StyleSheet, Text, TextInput, View } from "react-native";
 import CustomButton from "../components/CustomButton";
+import { useLogin } from "@/mutations/auth.mutation";
+import { router } from "expo-router";
 
 export default function Login() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const { mutate: login } = useLogin();
 
   const handleLogin = () => {
-    Alert.alert("Login Attempt", `Email: ${email}`);
-    // Future: Add authentication logic here
-  };
+  login({ email, password }, {
+    onSuccess: (data) => {
+      router.replace("/home"); 
+    },
+    onError: (error) => {
+      Alert.alert("Login Failed", error?.message || "Something went wrong");
+    }
+  });
+};
 
   return (
     <View style={styles.container}>
@@ -33,6 +42,10 @@ export default function Login() {
       />
 
       <CustomButton title="Login" onPress={handleLogin} />
+
+      <Text style={styles.footerText} onPress={() => router.push("/register")}>
+        Don't have an account? <Text style={styles.link}>Register</Text>
+      </Text>
     </View>
   );
 }
@@ -55,4 +68,6 @@ const styles = StyleSheet.create({
     marginBottom: 15,
     backgroundColor: "#fff",
   },
+  footerText: { marginTop: 20, color: "#666" },
+  link: { color: "#007AFF", fontWeight: "bold" },
 });

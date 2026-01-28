@@ -8,6 +8,7 @@ import {
     TextInput
 } from "react-native";
 import CustomButton from "../components/CustomButton";
+import { useRegister } from "@/mutations/auth.mutation";
 
 export default function Register() {
   const router = useRouter();
@@ -20,23 +21,31 @@ export default function Register() {
     confirmPassword: "",
   });
 
+  const { mutate: register } = useRegister();
+
   const handleRegister = () => {
     const { fullName, email, password, confirmPassword } = form;
+    console.log(form)
 
-    // Simple Validation logic
     if (!fullName || !email || !password) {
       Alert.alert("Error", "Please fill in all fields");
       return;
     }
-
     if (password !== confirmPassword) {
       Alert.alert("Error", "Passwords do not match!");
       return;
     }
 
-    // Success!
-    Alert.alert("Success", "Account created successfully!");
-    router.replace("/login"); // Redirect to login after success
+    register({ email, password, name: fullName }, {
+      onSuccess: (data) => {      
+        router.replace("/login"); 
+      },
+      onError: (error) => {
+        Alert.alert("Register Failed", error?.message || "Something went wrong");
+      }
+    });
+
+    
   };
 
   return (
